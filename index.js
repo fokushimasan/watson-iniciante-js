@@ -28,7 +28,8 @@ app.post('/dialog', (req, res) => {
             if (error) {
                 console.error(error)
             } else {
-                res.json(response.data)
+                const { output } = response
+                return res.json(output.text)
             }
         }
     )
