@@ -2,14 +2,36 @@ const port = 3000
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const watson = require('watson-developer-cloud')
+
+const watsonAuth = require('./watson-auth')
 
 const app = express()
 app.use(bodyParser.json())
 
+const assistent = new watson.AssistantV1({
+    username: watsonAuth.username,
+    password: watsonAuth.password,
+    url: 'https://gateway.watsonplatform.net/assistant/api/',
+    version: '2018-02-16'
+})
+
 app.post('/dialog', (req, res) => {
     const { message } = req.body
 
-    res.json({ message })
+    assistent.message(
+        {
+            input: { text: message },
+            workspace_id: watsonAuth.workspace_id
+        },
+        function (error, response) {
+            if (error) {
+                console.error(error)
+            } else {
+                res.json(response.data)
+            }
+        }
+    )
 })
 
 app.listen(port, () => console.log(`Running on port ${port}`))
